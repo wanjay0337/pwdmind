@@ -1,371 +1,1032 @@
-
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>密碼背誦小助手 / Password Memorizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0a0a0a;--bg2:#141414;--bg3:#1e1e1e;
-  --text:#f0f0f0;--text2:#a0a0a0;--text3:#606060;
-  --border:#2a2a2a;--border2:#3a3a3a;
-  --green:#22c55e;--red:#ef4444;--green-dim:#0d2818;--red-dim:#2d0a0a;
-  --mono:'JetBrains Mono',monospace;
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 16px 64px;
+  transition: background 0.2s, color 0.2s;
 }
-.light{
-  --bg:#fafafa;--bg2:#f0f0f0;--bg3:#e4e4e4;
-  --text:#0a0a0a;--text2:#4a4a4a;--text3:#9a9a9a;
-  --border:#d4d4d4;--border2:#c0c0c0;
-  --green:#16a34a;--red:#dc2626;--green-dim:#dcfce7;--red-dim:#fee2e2;
+
+/* ── Theme Variables ── */
+body {
+  --bg:      #0a0a0a;
+  --bg2:     #111111;
+  --bg3:     #1a1a1a;
+  --bg4:     #242424;
+  --text:    #f0f0f0;
+  --text2:   #a0a0a0;
+  --text3:   #505050;
+  --border:  #222222;
+  --border2: #333333;
+  --border3: #444444;
+  --green:      #22c55e;
+  --green-bg:   #0a2018;
+  --green-border:#164d2e;
+  --red:        #ef4444;
+  --red-bg:     #200a0a;
+  --red-border: #4d1616;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+  background: #050505;
+  color: var(--text);
 }
-body{background:transparent;font-family:var(--font-sans),sans-serif}
-#app{background:var(--bg);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;user-select:none}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:0.5px solid var(--border);background:var(--bg2)}
-.logo{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--text);letter-spacing:0.05em}
-.logo span{color:var(--text3)}
-.topbar-right{display:flex;gap:8px}
-.pill-btn{background:transparent;border:0.5px solid var(--border2);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;transition:all 0.15s;letter-spacing:0.03em}
-.pill-btn:hover{border-color:var(--text3);color:var(--text)}
-.pill-btn.active{background:var(--text);color:var(--bg);border-color:var(--text)}
-.section{padding:16px;border-bottom:0.5px solid var(--border)}
-.section:last-child{border-bottom:none}
-.label{font-size:11px;font-weight:500;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px}
-.pw-input-row{display:flex;gap:8px;align-items:center}
-.pw-input{flex:1;background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;font-family:var(--mono);font-size:14px;color:var(--text);outline:none;letter-spacing:0.1em;transition:border-color 0.15s}
-.pw-input:focus{border-color:var(--border2)}
-.icon-btn{background:transparent;border:0.5px solid var(--border);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);transition:all 0.15s;flex-shrink:0}
-.icon-btn:hover{border-color:var(--border2);color:var(--text)}
-.mode-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px}
-.mode-btn{background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:10px 8px;text-align:center;cursor:pointer;transition:all 0.15s}
-.mode-btn:hover{border-color:var(--border2)}
-.mode-btn.active{background:var(--bg3);border-color:var(--text);box-shadow:0 0 0 1px var(--text) inset}
-.mode-btn .mode-icon{font-size:16px;margin-bottom:4px;color:var(--text2)}
-.mode-btn .mode-label{font-size:11px;font-weight:500;color:var(--text2)}
-.mode-btn .mode-desc{font-size:10px;color:var(--text3);margin-top:2px}
-.mode-btn.active .mode-label{color:var(--text)}
-.hint-area{background:var(--bg2);border-radius:8px;padding:16px;text-align:center;min-height:56px;display:flex;align-items:center;justify-content:center}
-.hint-chars{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--text);letter-spacing:0.2em;word-break:break-all;line-height:1.6}
-.hint-char-revealed{color:var(--text)}
-.hint-char-hidden{color:var(--text3)}
-.hint-empty{font-size:12px;color:var(--text3)}
-.practice-area{position:relative}
-.progress-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.progress-bar-bg{flex:1;height:3px;background:var(--bg3);border-radius:2px;overflow:hidden}
-.progress-bar-fill{height:100%;background:var(--text);border-radius:2px;transition:width 0.2s}
-.progress-text{font-family:var(--mono);font-size:11px;color:var(--text3);min-width:40px;text-align:right}
-.main-input{width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:18px;color:var(--text);outline:none;letter-spacing:0.15em;transition:border-color 0.15s,background 0.15s}
-.main-input:focus{border-color:var(--border2)}
-.main-input.correct{border-color:var(--green);background:var(--green-dim)}
-.main-input.wrong{border-color:var(--red);background:var(--red-dim);animation:shake 0.3s ease}
-.main-input.done{border-color:var(--green);background:var(--green-dim)}
-@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
-.feedback-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-.char-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background 0.1s;flex-shrink:0}
-.char-dot.ok{background:var(--green)}
-.char-dot.fail{background:var(--red)}
-.char-dot.current{background:var(--text3);box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--text3)}
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.stat-card{background:var(--bg3);border-radius:8px;padding:10px;text-align:center}
-.stat-val{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--text);line-height:1}
-.stat-label{font-size:10px;color:var(--text3);margin-top:4px;letter-spacing:0.05em}
-.streak-fire{color:var(--text2)}
-.action-row{display:flex;gap:8px}
-.action-btn{flex:1;background:transparent;border:0.5px solid var(--border);border-radius:8px;padding:10px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all 0.15s}
-.action-btn:hover{border-color:var(--border2);color:var(--text)}
-.action-btn.primary{background:var(--text);color:var(--bg);border-color:var(--text)}
-.action-btn.primary:hover{opacity:0.85}
-.success-banner{background:var(--green-dim);border:0.5px solid var(--green);border-radius:8px;padding:12px;text-align:center;display:none}
-.success-banner.show{display:block}
-.success-banner p{font-family:var(--mono);font-size:13px;color:var(--green);font-weight:500}
-.penalty-msg{font-size:11px;color:var(--red);margin-top:6px;min-height:16px;font-family:var(--mono)}
-.penalty-toggle{display:flex;align-items:center;gap:8px;margin-top:10px}
-.toggle-track{width:32px;height:18px;background:var(--bg3);border:0.5px solid var(--border);border-radius:9px;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0}
-.toggle-track.on{background:var(--text)}
-.toggle-thumb{position:absolute;top:2px;left:2px;width:12px;height:12px;background:var(--text3);border-radius:50%;transition:left 0.2s,background 0.2s}
-.toggle-track.on .toggle-thumb{left:16px;background:var(--bg)}
-.toggle-label{font-size:11px;color:var(--text3)}
+body.light {
+  --bg:      #ffffff;
+  --bg2:     #f8f8f8;
+  --bg3:     #f0f0f0;
+  --bg4:     #e8e8e8;
+  --text:    #0a0a0a;
+  --text2:   #505050;
+  --text3:   #a0a0a0;
+  --border:  #e0e0e0;
+  --border2: #cccccc;
+  --border3: #b0b0b0;
+  --green:      #16a34a;
+  --green-bg:   #f0fdf4;
+  --green-border:#bbf7d0;
+  --red:        #dc2626;
+  --red-bg:     #fef2f2;
+  --red-border: #fecaca;
+  background: #f4f4f4;
+  color: var(--text);
+}
+
+/* ── Layout ── */
+#app {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg);
+  border: 0.5px solid var(--border2);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* ── Top Bar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 0.5px solid var(--border);
+  background: var(--bg2);
+}
+.logo {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: 0.04em;
+}
+.logo .dim { color: var(--text3); }
+.topbar-right { display: flex; gap: 8px; align-items: center; }
+
+/* ── Pill Buttons ── */
+.pill-btn {
+  background: transparent;
+  border: 0.5px solid var(--border2);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.04em;
+  font-family: inherit;
+  line-height: 1;
+}
+.pill-btn:hover { border-color: var(--border3); color: var(--text); }
+.pill-btn.active {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+/* ── Section ── */
+.section {
+  padding: 20px;
+  border-bottom: 0.5px solid var(--border);
+}
+.section:last-child { border-bottom: none; }
+.section-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+/* ── Password Input ── */
+.pw-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.pw-field {
+  flex: 1;
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-family: var(--mono);
+  font-size: 15px;
+  color: var(--text);
+  outline: none;
+  letter-spacing: 0.12em;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+}
+.pw-field::placeholder { color: var(--text3); letter-spacing: 0.02em; font-size: 13px; }
+.pw-field:focus { border-color: var(--border3); }
+
+.icon-btn {
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text3);
+  transition: all 0.15s;
+  flex-shrink: 0;
+  font-size: 17px;
+}
+.icon-btn:hover { border-color: var(--border3); color: var(--text2); }
+
+/* ── Mode Buttons ── */
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+.mode-card {
+  background: var(--bg3);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mode-card:hover { border-color: var(--border2); }
+.mode-card.active {
+  background: var(--bg3);
+  border-color: var(--text2);
+  box-shadow: 0 0 0 1px var(--text2) inset;
+}
+.mode-icon {
+  font-size: 18px;
+  color: var(--text3);
+  margin-bottom: 6px;
+  display: block;
+}
+.mode-card.active .mode-icon { color: var(--text2); }
+.mode-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text2);
+  display: block;
+}
+.mode-card.active .mode-name { color: var(--text); }
+.mode-sub {
+  font-size: 10px;
+  color: var(--text3);
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Penalty Toggle ── */
+.opt-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 0.5px solid var(--border);
+}
+.toggle-wrap {
+  width: 36px;
+  height: 20px;
+  background: var(--bg4);
+  border: 0.5px solid var(--border2);
+  border-radius: 10px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+.toggle-wrap.on {
+  background: var(--text);
+  border-color: var(--text);
+}
+.toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  background: var(--text3);
+  border-radius: 50%;
+  transition: left 0.2s, background 0.2s;
+}
+.toggle-wrap.on .toggle-knob {
+  left: 19px;
+  background: var(--bg);
+}
+.opt-label { font-size: 12px; color: var(--text3); }
+
+/* ── Hint Area ── */
+.hint-box {
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 16px;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: auto;
+}
+.hint-chars {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  line-height: 1.7;
+  text-align: center;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+.hint-chars .ch-show { color: var(--text); }
+.hint-chars .ch-hide { color: var(--text3); }
+.hint-empty { font-size: 12px; color: var(--text3); font-family: inherit; letter-spacing: 0.01em; }
+
+/* ── Progress ── */
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.progress-track {
+  flex: 1;
+  height: 2px;
+  background: var(--bg4);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--text2);
+  border-radius: 2px;
+  transition: width 0.25s ease, background 0.2s;
+  width: 0%;
+}
+.progress-fill.done { background: var(--green); }
+.progress-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  min-width: 48px;
+  text-align: right;
+}
+
+/* ── Main Input ── */
+.main-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+  outline: none;
+  letter-spacing: 0.16em;
+  transition: border-color 0.15s, background 0.15s;
+  caret-color: var(--text2);
+}
+.main-input::placeholder { color: var(--text3); font-size: 13px; letter-spacing: 0.02em; font-weight: 400; }
+.main-input:focus { border-color: var(--border3); }
+.main-input.state-ok {
+  border-color: var(--green);
+  background: var(--green-bg);
+}
+.main-input.state-err {
+  border-color: var(--red);
+  background: var(--red-bg);
+  animation: shake 0.32s ease;
+}
+.main-input.state-done {
+  border-color: var(--green);
+  background: var(--green-bg);
+}
+.main-input:disabled { opacity: 0.4; cursor: not-allowed; }
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  18%      { transform: translateX(-7px); }
+  36%      { transform: translateX(7px); }
+  54%      { transform: translateX(-5px); }
+  72%      { transform: translateX(5px); }
+  90%      { transform: translateX(-2px); }
+}
+
+/* ── Char Dots ── */
+.dot-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+  min-height: 14px;
+}
+.cdot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bg4);
+  border: 0.5px solid var(--border2);
+  transition: background 0.12s, border-color 0.12s;
+  flex-shrink: 0;
+}
+.cdot.ok   { background: var(--green); border-color: var(--green); }
+.cdot.fail { background: var(--red);   border-color: var(--red); }
+.cdot.cur  {
+  background: var(--bg4);
+  border-color: var(--text3);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--text3);
+}
+
+/* ── Feedback Messages ── */
+.msg-row {
+  min-height: 20px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.msg-err {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--red);
+}
+.msg-ok {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--green);
+}
+
+/* ── Success Banner ── */
+.success-banner {
+  display: none;
+  margin-top: 10px;
+  background: var(--green-bg);
+  border: 0.5px solid var(--green-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  text-align: center;
+}
+.success-banner.show { display: block; }
+.success-banner p {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--green);
+}
+.success-banner small {
+  display: block;
+  font-size: 11px;
+  color: var(--green);
+  opacity: 0.65;
+  margin-top: 4px;
+}
+
+/* ── Stats Grid ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.stat-card {
+  background: var(--bg3);
+  border-radius: 8px;
+  padding: 12px 8px;
+  text-align: center;
+}
+.stat-val {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1;
+  display: block;
+}
+.stat-lbl {
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 5px;
+  display: block;
+  letter-spacing: 0.04em;
+}
+
+/* ── Action Buttons ── */
+.action-row {
+  display: flex;
+  gap: 8px;
+}
+.act-btn {
+  flex: 1;
+  background: transparent;
+  border: 0.5px solid var(--border2);
+  border-radius: 8px;
+  padding: 10px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.act-btn:hover { border-color: var(--border3); color: var(--text); }
+.act-btn.primary {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+.act-btn.primary:hover { opacity: 0.85; }
+.act-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.act-btn:disabled:hover { border-color: var(--border2); color: var(--text2); opacity: 0.3; }
+
+/* ── Footer ── */
+.footer-note {
+  text-align: center;
+  padding: 10px 20px 4px;
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.04em;
+  border-top: 0.5px solid var(--border);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  body { padding: 16px 10px 48px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .action-row { flex-wrap: wrap; }
+  .act-btn { flex: 1 1 40%; }
+  .hint-chars { font-size: 16px; letter-spacing: 0.15em; }
+}
 </style>
+</head>
+<body>
 
 <div id="app">
+
+  <!-- Top Bar -->
   <div class="topbar">
-    <div class="logo"><span>// </span>密碼背誦<span> _</span></div>
+    <div class="logo"><span class="dim">// </span>密碼背誦<span class="dim"> _</span></div>
     <div class="topbar-right">
       <button class="pill-btn" id="langBtn" onclick="toggleLang()">EN</button>
       <button class="pill-btn" id="themeBtn" onclick="toggleTheme()">☀</button>
     </div>
   </div>
 
+  <!-- Section 1: Setup -->
   <div class="section">
-    <div class="label" id="lbl-setup">設定</div>
-    <div class="pw-input-row">
-      <input class="pw-input" type="password" id="pwInput" placeholder="輸入欲背誦的密碼..." autocomplete="off" spellcheck="false" oninput="onPwChange()">
-      <button class="icon-btn" id="eyeBtn" onclick="toggleEye()" title="顯示/隱藏">
+    <div class="section-label" id="lbl-setup">設定</div>
+
+    <div class="pw-row">
+      <input class="pw-field" type="password" id="pwInput"
+        placeholder="輸入欲背誦的密碼..."
+        autocomplete="off" autocorrect="off" spellcheck="false"
+        oninput="onPwChange()">
+      <button class="icon-btn" id="eyeBtn" onclick="toggleEye()" title="顯示/隱藏密碼" aria-label="顯示/隱藏密碼">
         <i class="ti ti-eye" id="eyeIcon" aria-hidden="true"></i>
       </button>
     </div>
-    <div class="mode-row">
-      <div class="mode-btn active" id="mode-full" onclick="setMode('full')">
-        <div class="mode-icon"><i class="ti ti-eye" aria-hidden="true"></i></div>
-        <div class="mode-label" id="m1l">全顯</div>
-        <div class="mode-desc" id="m1d">完整顯示</div>
+
+    <div class="mode-grid">
+      <div class="mode-card active" id="mode-full" onclick="setMode('full')" role="button" tabindex="0">
+        <i class="ti ti-eye mode-icon" aria-hidden="true"></i>
+        <span class="mode-name" id="m1n">全顯</span>
+        <span class="mode-sub"  id="m1s">完整顯示</span>
       </div>
-      <div class="mode-btn" id="mode-first" onclick="setMode('first')">
-        <div class="mode-icon"><i class="ti ti-asterisk" aria-hidden="true"></i></div>
-        <div class="mode-label" id="m2l">字首</div>
-        <div class="mode-desc" id="m2d">首字提示</div>
+      <div class="mode-card" id="mode-first" onclick="setMode('first')" role="button" tabindex="0">
+        <i class="ti ti-asterisk mode-icon" aria-hidden="true"></i>
+        <span class="mode-name" id="m2n">字首</span>
+        <span class="mode-sub"  id="m2s">首字提示</span>
       </div>
-      <div class="mode-btn" id="mode-blind" onclick="setMode('blind')">
-        <div class="mode-icon"><i class="ti ti-eye-off" aria-hidden="true"></i></div>
-        <div class="mode-label" id="m3l">全盲</div>
-        <div class="mode-desc" id="m3d">完全遮蔽</div>
+      <div class="mode-card" id="mode-blind" onclick="setMode('blind')" role="button" tabindex="0">
+        <i class="ti ti-eye-off mode-icon" aria-hidden="true"></i>
+        <span class="mode-name" id="m3n">全盲</span>
+        <span class="mode-sub"  id="m3s">完全遮蔽</span>
       </div>
     </div>
-    <div class="penalty-toggle">
-      <div class="toggle-track" id="penaltyToggle" onclick="togglePenalty()">
-        <div class="toggle-thumb"></div>
+
+    <div class="opt-row">
+      <div class="toggle-wrap on" id="penaltyToggle" onclick="togglePenalty()" role="switch" tabindex="0" aria-checked="true">
+        <div class="toggle-knob"></div>
       </div>
-      <span class="toggle-label" id="penaltyLabel">卡住模式：打錯則停住</span>
+      <span class="opt-label" id="penaltyLabel">卡住模式：打錯暫停並清除</span>
     </div>
   </div>
 
+  <!-- Section 2: Hint -->
   <div class="section">
-    <div class="label" id="lbl-hint">提示</div>
-    <div class="hint-area">
-      <div class="hint-chars" id="hintChars"><span class="hint-empty" id="hintEmpty">請先輸入密碼</span></div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="label" id="lbl-practice">練習</div>
-    <div class="practice-area">
-      <div class="progress-row">
-        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
-        <span class="progress-text" id="progressText">0 / 0</span>
-      </div>
-      <input class="main-input" type="password" id="mainInput" placeholder="在此輸入密碼..." autocomplete="off" spellcheck="false" oninput="onPracticeInput()" onpaste="return false" disabled>
-      <div class="feedback-row" id="feedbackDots"></div>
-      <div class="penalty-msg" id="penaltyMsg"></div>
-      <div class="success-banner" id="successBanner">
-        <p id="successMsg">✓ 完全正確！</p>
+    <div class="section-label" id="lbl-hint">提示</div>
+    <div class="hint-box">
+      <div class="hint-chars" id="hintChars" aria-live="polite">
+        <span class="hint-empty" id="hintEmpty">請先輸入密碼</span>
       </div>
     </div>
   </div>
 
+  <!-- Section 3: Practice -->
   <div class="section">
-    <div class="label" id="lbl-stats">統計</div>
-    <div class="stats-row" style="margin-bottom:12px">
-      <div class="stat-card"><div class="stat-val" id="statAcc">—</div><div class="stat-label" id="sl1">正確率</div></div>
-      <div class="stat-card"><div class="stat-val" id="statStreak">0</div><div class="stat-label" id="sl2">連勝</div></div>
-      <div class="stat-card"><div class="stat-val" id="statAttempts">0</div><div class="stat-label" id="sl3">嘗試</div></div>
-      <div class="stat-card"><div class="stat-val" id="statBest">—</div><div class="stat-label" id="sl4">最佳</div></div>
+    <div class="section-label" id="lbl-practice">練習</div>
+
+    <div class="progress-row">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <span class="progress-num" id="progressNum">0 / 0</span>
     </div>
+
+    <input class="main-input" type="password" id="mainInput"
+      placeholder="在此輸入密碼..."
+      autocomplete="new-password" autocorrect="off" spellcheck="false"
+      oninput="onPracticeInput()" onpaste="return false"
+      aria-label="練習輸入區" disabled>
+
+    <div class="dot-row" id="dotRow" aria-hidden="true"></div>
+
+    <div class="msg-row">
+      <span class="msg-err" id="msgErr"></span>
+      <span class="msg-ok"  id="msgOk"></span>
+    </div>
+
+    <div class="success-banner" id="successBanner" role="status">
+      <p id="successMsg">✓ 完全正確！</p>
+      <small id="successSub">繼續挑戰下一模式</small>
+    </div>
+  </div>
+
+  <!-- Section 4: Stats -->
+  <div class="section">
+    <div class="section-label" id="lbl-stats">統計</div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-val" id="statAcc">—</span>
+        <span class="stat-lbl" id="sl-acc">正確率</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-val" id="statStreak">0</span>
+        <span class="stat-lbl" id="sl-streak">連勝</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-val" id="statAttempts">0</span>
+        <span class="stat-lbl" id="sl-attempts">嘗試</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-val" id="statBest">—</span>
+        <span class="stat-lbl" id="sl-best">最佳長度</span>
+      </div>
+    </div>
+
     <div class="action-row">
-      <button class="action-btn" id="resetBtn" onclick="resetPractice()">重新開始</button>
-      <button class="action-btn" id="changePwBtn" onclick="changePw()">換密碼</button>
-      <button class="action-btn primary" id="nextModeBtn" onclick="nextMode()" disabled>下一模式</button>
+      <button class="act-btn" id="resetBtn"   onclick="resetPractice()">重新開始</button>
+      <button class="act-btn" id="changePwBtn" onclick="changePw()">換密碼</button>
+      <button class="act-btn primary" id="nextModeBtn" onclick="nextMode()" disabled>下一模式</button>
     </div>
   </div>
+
+  <div class="footer-note" id="footerNote">所有資料僅存在於記憶體，重新整理即清除 · No data leaves your browser</div>
 </div>
 
 <script>
-const T={
-  zh:{
-    setup:'設定',hint:'提示',practice:'練習',stats:'統計',
-    m1l:'全顯',m1d:'完整顯示',m2l:'字首',m2d:'首字提示',m3l:'全盲',m3d:'完全遮蔽',
-    pwPh:'輸入欲背誦的密碼...',pracPh:'在此輸入密碼...',
-    hintEmpty:'請先輸入密碼',
-    sl1:'正確率',sl2:'連勝',sl3:'嘗試',sl4:'最佳',
-    reset:'重新開始',changePw:'換密碼',nextMode:'下一模式',
-    penaltyLabel:'卡住模式：打錯則停住',
-    successMsg:'✓ 完全正確！',
-    penaltyStop:'✗ 停！重新輸入',
-    acc:'正確率',
-    streak:'🔥',
-    langBtn:'EN',themeBtn:'☀',
+/* ────────────────────────────────────────
+   i18n strings
+──────────────────────────────────────── */
+const STRINGS = {
+  zh: {
+    lblSetup: '設定', lblHint: '提示', lblPractice: '練習', lblStats: '統計',
+    m1n: '全顯',  m1s: '完整顯示',
+    m2n: '字首',  m2s: '首字提示',
+    m3n: '全盲',  m3s: '完全遮蔽',
+    pwPh: '輸入欲背誦的密碼...',
+    pracPh: '在此輸入密碼...',
+    hintEmpty: '請先輸入密碼',
+    penaltyLabel: '卡住模式：打錯暫停並清除',
+    slAcc: '正確率', slStreak: '連勝', slAttempts: '嘗試', slBest: '最佳長度',
+    resetBtn: '重新開始', changePwBtn: '換密碼', nextModeBtn: '下一模式',
+    successMsg: '✓ 完全正確！',
+    successSub: '繼續挑戰下一模式',
+    msgErr: '✗ 錯誤，請重試',
+    langBtn: 'EN', themeBtn: { dark: '☀', light: '☾' },
+    footerNote: '所有資料僅存在於記憶體，重新整理即清除 · No data leaves your browser',
+    eyeShow: '顯示密碼', eyeHide: '隱藏密碼',
   },
-  en:{
-    setup:'Setup',hint:'Hint',practice:'Practice',stats:'Stats',
-    m1l:'Full',m1d:'Show all',m2l:'First',m2d:'First char',m3l:'Blind',m3d:'All hidden',
-    pwPh:'Enter password to memorize...',pracPh:'Type the password here...',
-    hintEmpty:'Enter a password first',
-    sl1:'Accuracy',sl2:'Streak',sl3:'Attempts',sl4:'Best',
-    reset:'Restart',changePw:'New PW',nextMode:'Next mode',
-    penaltyLabel:'Lock mode: stops on error',
-    successMsg:'✓ Correct!',
-    penaltyStop:'✗ Stop! Retype',
-    acc:'Accuracy',
-    streak:'🔥',
-    langBtn:'中',themeBtn:'☀',
-  }
+  en: {
+    lblSetup: 'Setup', lblHint: 'Hint', lblPractice: 'Practice', lblStats: 'Stats',
+    m1n: 'Full',  m1s: 'Show all',
+    m2n: 'First', m2s: 'First char',
+    m3n: 'Blind', m3s: 'All hidden',
+    pwPh: 'Enter the password to memorize...',
+    pracPh: 'Type the password here...',
+    hintEmpty: 'Enter a password above',
+    penaltyLabel: 'Lock mode: freeze & clear on error',
+    slAcc: 'Accuracy', slStreak: 'Streak', slAttempts: 'Attempts', slBest: 'Best len',
+    resetBtn: 'Restart', changePwBtn: 'New PW', nextModeBtn: 'Next mode',
+    successMsg: '✓ Correct!',
+    successSub: 'Try the next mode',
+    msgErr: '✗ Wrong — try again',
+    langBtn: '中', themeBtn: { dark: '☀', light: '☾' },
+    footerNote: 'All data stays in memory only · Refresh to clear · No data leaves your browser',
+    eyeShow: 'Show password', eyeHide: 'Hide password',
+  },
 };
-let lang='zh',theme='dark',mode='full',penaltyOn=true;
-let password='',streak=0,attempts=0,totalCorrect=0,totalChars=0,bestLen=0;
-let lastCorrectLen=0,locked=false;
 
-function $(id){return document.getElementById(id)}
+/* ────────────────────────────────────────
+   State
+──────────────────────────────────────── */
+let lang       = 'zh';
+let theme      = 'dark';
+let mode       = 'full';          // 'full' | 'first' | 'blind'
+let penaltyOn  = true;
 
-function toggleLang(){
-  lang=lang==='zh'?'en':'zh';
-  applyLang();
-  updateHint();
+let password       = '';
+let locked         = false;       // temporarily locked after wrong char (penalty)
+let lastGoodLen    = 0;           // how many chars are confirmed correct
+
+let streak         = 0;
+let attempts       = 0;
+let totalTyped     = 0;
+let totalCorrect   = 0;
+let bestLen        = 0;
+
+/* ────────────────────────────────────────
+   DOM helpers
+──────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+
+/* ────────────────────────────────────────
+   Theme
+──────────────────────────────────────── */
+function toggleTheme() {
+  theme = theme === 'dark' ? 'light' : 'dark';
+  document.body.className = theme === 'light' ? 'light' : '';
+  $('themeBtn').textContent = STRINGS[lang].themeBtn[theme];
 }
-function toggleTheme(){
-  theme=theme==='dark'?'light':'dark';
-  document.getElementById('app').className=theme==='light'?'light':'';
-  $('themeBtn').textContent=theme==='dark'?'☀':'☾';
+
+/* ────────────────────────────────────────
+   Language
+──────────────────────────────────────── */
+function toggleLang() {
+  lang = lang === 'zh' ? 'en' : 'zh';
+  applyStrings();
+  renderHint();
 }
-function applyLang(){
-  const t=T[lang];
-  $('lbl-setup').textContent=t.setup;
-  $('lbl-hint').textContent=t.hint;
-  $('lbl-practice').textContent=t.practice;
-  $('lbl-stats').textContent=t.stats;
-  $('m1l').textContent=t.m1l;$('m1d').textContent=t.m1d;
-  $('m2l').textContent=t.m2l;$('m2d').textContent=t.m2d;
-  $('m3l').textContent=t.m3l;$('m3d').textContent=t.m3d;
-  $('pwInput').placeholder=t.pwPh;
-  $('mainInput').placeholder=t.pracPh;
-  $('hintEmpty').textContent=t.hintEmpty;
-  $('sl1').textContent=t.sl1;$('sl2').textContent=t.sl2;$('sl3').textContent=t.sl3;$('sl4').textContent=t.sl4;
-  $('resetBtn').textContent=t.reset;$('changePwBtn').textContent=t.changePw;$('nextModeBtn').textContent=t.nextMode;
-  $('penaltyLabel').textContent=t.penaltyLabel;
-  $('langBtn').textContent=t.langBtn;
-  if($('successBanner').classList.contains('show'))$('successMsg').textContent=t.successMsg;
+
+function applyStrings() {
+  const s = STRINGS[lang];
+  $('lbl-setup').textContent    = s.lblSetup;
+  $('lbl-hint').textContent     = s.lblHint;
+  $('lbl-practice').textContent = s.lblPractice;
+  $('lbl-stats').textContent    = s.lblStats;
+  $('m1n').textContent = s.m1n; $('m1s').textContent = s.m1s;
+  $('m2n').textContent = s.m2n; $('m2s').textContent = s.m2s;
+  $('m3n').textContent = s.m3n; $('m3s').textContent = s.m3s;
+  $('pwInput').placeholder      = s.pwPh;
+  $('mainInput').placeholder    = s.pracPh;
+  $('penaltyLabel').textContent = s.penaltyLabel;
+  $('sl-acc').textContent       = s.slAcc;
+  $('sl-streak').textContent    = s.slStreak;
+  $('sl-attempts').textContent  = s.slAttempts;
+  $('sl-best').textContent      = s.slBest;
+  $('resetBtn').textContent     = s.resetBtn;
+  $('changePwBtn').textContent  = s.changePwBtn;
+  $('nextModeBtn').textContent  = s.nextModeBtn;
+  $('langBtn').textContent      = s.langBtn;
+  $('themeBtn').textContent     = s.themeBtn[theme];
+  $('footerNote').textContent   = s.footerNote;
+  if ($('successBanner').classList.contains('show')) {
+    $('successMsg').textContent = s.successMsg;
+    $('successSub').textContent = s.successSub;
+  }
+  const he = $('hintEmpty');
+  if (he) he.textContent = s.hintEmpty;
+  // update eye button aria-label
+  const eyeIsShowing = $('pwInput').type === 'text';
+  $('eyeBtn').setAttribute('aria-label', eyeIsShowing ? s.eyeHide : s.eyeShow);
 }
-function setMode(m){
-  mode=m;
-  ['full','first','blind'].forEach(x=>$('mode-'+x).classList.toggle('active',x===m));
-  updateHint();
+
+/* ────────────────────────────────────────
+   Eye toggle (show/hide password field)
+──────────────────────────────────────── */
+function toggleEye() {
+  const inp = $('pwInput');
+  const showing = inp.type === 'text';
+  inp.type = showing ? 'password' : 'text';
+  $('eyeIcon').className = showing ? 'ti ti-eye' : 'ti ti-eye-off';
+  $('eyeBtn').setAttribute('aria-label', STRINGS[lang][showing ? 'eyeShow' : 'eyeHide']);
+}
+
+/* ────────────────────────────────────────
+   Mode selection
+──────────────────────────────────────── */
+function setMode(m) {
+  mode = m;
+  ['full', 'first', 'blind'].forEach(x =>
+    $('mode-' + x).classList.toggle('active', x === m)
+  );
+  renderHint();
   resetPractice();
 }
-function nextMode(){
-  const modes=['full','first','blind'];
-  const idx=modes.indexOf(mode);
-  setMode(modes[(idx+1)%3]);
+
+function nextMode() {
+  const order = ['full', 'first', 'blind'];
+  const next  = order[(order.indexOf(mode) + 1) % order.length];
+  setMode(next);
 }
-function toggleEye(){
-  const inp=$('pwInput');
-  const showing=inp.type==='text';
-  inp.type=showing?'password':'text';
-  $('eyeIcon').className='ti ti-eye'+(showing?'':'-off');
+
+/* ────────────────────────────────────────
+   Penalty toggle
+──────────────────────────────────────── */
+function togglePenalty() {
+  penaltyOn = !penaltyOn;
+  const t = $('penaltyToggle');
+  t.classList.toggle('on', penaltyOn);
+  t.setAttribute('aria-checked', String(penaltyOn));
 }
-function togglePenalty(){
-  penaltyOn=!penaltyOn;
-  $('penaltyToggle').classList.toggle('on',penaltyOn);
-}
-function onPwChange(){
-  password=$('pwInput').value;
-  updateHint();
+
+/* ────────────────────────────────────────
+   Password input → update hint + reset
+──────────────────────────────────────── */
+function onPwChange() {
+  password = $('pwInput').value;
+  renderHint();
   resetPractice();
-  $('mainInput').disabled=password.length===0;
+  $('mainInput').disabled = (password.length === 0);
 }
-function updateHint(){
-  if(!password){
-    $('hintChars').innerHTML='<span class="hint-empty" id="hintEmpty">'+T[lang].hintEmpty+'</span>';
+
+/* ────────────────────────────────────────
+   Hint rendering
+──────────────────────────────────────── */
+function renderHint() {
+  const container = $('hintChars');
+  if (!password) {
+    container.innerHTML = `<span class="hint-empty" id="hintEmpty">${STRINGS[lang].hintEmpty}</span>`;
     return;
   }
-  let html='';
-  for(let i=0;i<password.length;i++){
-    const ch=escHtml(password[i]);
-    if(mode==='full'){
-      html+=`<span class="hint-char-revealed">${ch}</span>`;
-    } else if(mode==='first'){
-      html+=i===0?`<span class="hint-char-revealed">${ch}</span>`:`<span class="hint-char-hidden">*</span>`;
-    } else {
-      html+=`<span class="hint-char-hidden">*</span>`;
-    }
+  let html = '';
+  for (let i = 0; i < password.length; i++) {
+    const ch  = escHtml(password[i]);
+    const cls = (mode === 'full' || (mode === 'first' && i === 0))
+      ? 'ch-show' : 'ch-hide';
+    const display = cls === 'ch-hide' ? '*' : ch;
+    html += `<span class="${cls}">${display}</span>`;
   }
-  $('hintChars').innerHTML=html;
-}
-function escHtml(c){return c.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function buildDots(){
-  let html='';
-  for(let i=0;i<password.length;i++) html+=`<div class="char-dot" id="dot-${i}"></div>`;
-  $('feedbackDots').innerHTML=html;
-}
-function resetPractice(){
-  $('mainInput').value='';
-  $('mainInput').className='main-input';
-  $('successBanner').classList.remove('show');
-  $('penaltyMsg').textContent='';
-  $('progressFill').style.width='0%';
-  $('progressText').textContent='0 / '+(password.length||0);
-  lastCorrectLen=0;locked=false;
-  buildDots();
-  if(password)$('mainInput').focus();
-}
-function onPracticeInput(){
-  if(!password)return;
-  if(locked){$('mainInput').value=$('mainInput').value.slice(0,lastCorrectLen);return}
-  const val=$('mainInput').value;
-  const len=val.length;
-  let allOk=true;
-  for(let i=0;i<len;i++){
-    const dot=$('dot-'+i);
-    if(i<password.length){
-      if(val[i]===password[i]){dot&&dot.classList.replace('fail','ok')||dot.classList.add('ok');dot&&dot.classList.remove('fail','current')}
-      else{dot&&dot.classList.add('fail');dot&&dot.classList.remove('ok','current');allOk=false}
-    }
-  }
-  const nextDot=$('dot-'+len);
-  if(nextDot){['ok','fail','current'].forEach(c=>nextDot.classList.remove(c));nextDot.classList.add('current')}
-  const correctSoFar=getCorrectLen(val);
-  if(len>0&&!allOk){
-    $('mainInput').className='main-input wrong';
-    if(penaltyOn){
-      locked=true;
-      setTimeout(()=>{
-        $('mainInput').value=password.slice(0,lastCorrectLen);
-        locked=false;
-        $('penaltyMsg').textContent='';
-        $('mainInput').className='main-input';
-        onPracticeInput();
-      },600);
-      $('penaltyMsg').textContent=T[lang].penaltyStop;
-      totalChars+=len;
-      totalCorrect+=correctSoFar;
-    }
-  } else if(len>0){
-    $('mainInput').className='main-input correct';
-    $('penaltyMsg').textContent='';
-    lastCorrectLen=len;
-    if(len===password.length){onComplete()}
-  } else {
-    $('mainInput').className='main-input';
-    $('penaltyMsg').textContent='';
-    lastCorrectLen=0;
-  }
-  const prog=Math.round((correctSoFar/password.length)*100);
-  $('progressFill').style.width=prog+'%';
-  $('progressText').textContent=correctSoFar+' / '+password.length;
-  updateStats();
-}
-function getCorrectLen(val){
-  let n=0;for(let i=0;i<val.length&&i<password.length;i++){if(val[i]===password[i])n++;else break}return n;
-}
-function onComplete(){
-  attempts++;streak++;
-  if(password.length>bestLen)bestLen=password.length;
-  totalCorrect+=password.length;totalChars+=password.length;
-  $('mainInput').className='main-input done';
-  $('successBanner').classList.add('show');
-  $('successMsg').textContent=T[lang].successMsg;
-  $('progressFill').style.width='100%';
-  $('progressText').textContent=password.length+' / '+password.length;
-  $('nextModeBtn').disabled=false;
-  for(let i=0;i<password.length;i++){const d=$('dot-'+i);d&&(d.classList.add('ok'),d.classList.remove('fail','current'))}
-  updateStats();
-}
-function updateStats(){
-  const acc=totalChars>0?Math.round((totalCorrect/totalChars)*100):null;
-  $('statAcc').textContent=acc!==null?acc+'%':'—';
-  $('statStreak').textContent=streak>0?'🔥'+streak:'0';
-  $('statAttempts').textContent=attempts;
-  $('statBest').textContent=bestLen>0?bestLen:'—';
-}
-function changePw(){
-  password='';$('pwInput').value='';$('pwInput').type='password';$('eyeIcon').className='ti ti-eye';
-  $('mainInput').disabled=true;
-  resetPractice();updateHint();updateStats();
-  streak=0;attempts=0;totalCorrect=0;totalChars=0;bestLen=0;
-  updateStats();$('pwInput').focus();
+  container.innerHTML = html;
 }
 
-applyLang();updateHint();updateStats();
+function escHtml(c) {
+  return c.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ────────────────────────────────────────
+   Dot row
+──────────────────────────────────────── */
+function buildDots() {
+  let html = '';
+  for (let i = 0; i < password.length; i++) {
+    html += `<div class="cdot" id="dot-${i}"></div>`;
+  }
+  $('dotRow').innerHTML = html;
+}
+
+function markDot(i, state) {
+  const d = $('dot-' + i);
+  if (!d) return;
+  d.className = 'cdot' + (state ? ' ' + state : '');
+}
+
+function clearDots() {
+  for (let i = 0; i < password.length; i++) markDot(i, '');
+}
+
+/* ────────────────────────────────────────
+   Reset practice session
+──────────────────────────────────────── */
+function resetPractice() {
+  $('mainInput').value = '';
+  setInputState('');
+  $('successBanner').classList.remove('show');
+  $('msgErr').textContent = '';
+  $('msgOk').textContent  = '';
+  $('progressFill').style.width = '0%';
+  $('progressFill').classList.remove('done');
+  $('progressNum').textContent  = '0 / ' + (password.length || 0);
+  $('nextModeBtn').disabled = true;
+  lastGoodLen = 0;
+  locked      = false;
+  buildDots();
+  if (password) $('mainInput').focus();
+}
+
+function setInputState(s) {
+  $('mainInput').className = 'main-input' + (s ? ' state-' + s : '');
+}
+
+/* ────────────────────────────────────────
+   Core practice input handler
+──────────────────────────────────────── */
+function onPracticeInput() {
+  if (!password) return;
+
+  // If locked (penalty cooldown), revert to last good position
+  if (locked) {
+    $('mainInput').value = password.slice(0, lastGoodLen);
+    return;
+  }
+
+  const val = $('mainInput').value;
+  const len = val.length;
+
+  // Find how many leading chars are correct
+  let correctLen = 0;
+  for (let i = 0; i < len && i < password.length; i++) {
+    if (val[i] === password[i]) correctLen++;
+    else break;
+  }
+
+  const hasError = (len > 0) && (correctLen < len || (len > password.length));
+
+  // Update dots
+  clearDots();
+  for (let i = 0; i < len && i < password.length; i++) {
+    if (i < correctLen) markDot(i, 'ok');
+    else                 markDot(i, 'fail');
+  }
+  if (len < password.length && !hasError) markDot(len, 'cur');
+
+  // Update progress bar
+  const pct = password.length > 0 ? Math.round((correctLen / password.length) * 100) : 0;
+  $('progressFill').style.width = pct + '%';
+  $('progressNum').textContent  = correctLen + ' / ' + password.length;
+
+  if (hasError) {
+    /* ── Error state ── */
+    setInputState('err');
+    $('msgErr').textContent = STRINGS[lang].msgErr;
+    $('msgOk').textContent  = '';
+
+    totalTyped   += (len - lastGoodLen);
+    // correct chars typed in this burst = correctLen - lastGoodLen (clamped)
+    totalCorrect += Math.max(0, correctLen - lastGoodLen);
+
+    if (penaltyOn) {
+      locked = true;
+      setTimeout(() => {
+        $('mainInput').value = password.slice(0, lastGoodLen);
+        locked = false;
+        setInputState(lastGoodLen > 0 ? 'ok' : '');
+        $('msgErr').textContent = '';
+        clearDots();
+        for (let i = 0; i < lastGoodLen; i++) markDot(i, 'ok');
+        if (lastGoodLen < password.length) markDot(lastGoodLen, 'cur');
+        $('progressFill').style.width = Math.round((lastGoodLen / password.length) * 100) + '%';
+        $('progressNum').textContent  = lastGoodLen + ' / ' + password.length;
+      }, 500);
+    }
+
+    updateStats();
+    return;
+  }
+
+  /* ── No error ── */
+  $('msgErr').textContent = '';
+  lastGoodLen = correctLen;
+
+  if (len === 0) {
+    setInputState('');
+    $('msgOk').textContent = '';
+  } else if (len === password.length && correctLen === password.length) {
+    /* ── Complete! ── */
+    onComplete();
+  } else {
+    setInputState('ok');
+    $('msgOk').textContent = '';
+  }
+
+  updateStats();
+}
+
+/* ────────────────────────────────────────
+   Completion
+──────────────────────────────────────── */
+function onComplete() {
+  attempts++;
+  streak++;
+  if (password.length > bestLen) bestLen = password.length;
+  totalTyped   += password.length - lastGoodLen;
+  totalCorrect += password.length - lastGoodLen;
+  lastGoodLen   = password.length;
+
+  setInputState('done');
+  $('progressFill').style.width = '100%';
+  $('progressFill').classList.add('done');
+  $('progressNum').textContent  = password.length + ' / ' + password.length;
+
+  for (let i = 0; i < password.length; i++) markDot(i, 'ok');
+
+  $('successMsg').textContent = STRINGS[lang].successMsg;
+  $('successSub').textContent = STRINGS[lang].successSub;
+  $('successBanner').classList.add('show');
+  $('msgErr').textContent = '';
+  $('msgOk').textContent  = '';
+  $('nextModeBtn').disabled = false;
+
+  updateStats();
+}
+
+/* ────────────────────────────────────────
+   Stats
+──────────────────────────────────────── */
+function updateStats() {
+  const acc = totalTyped > 0 ? Math.round((totalCorrect / totalTyped) * 100) : null;
+  $('statAcc').textContent     = acc !== null ? acc + '%' : '—';
+  $('statStreak').textContent  = streak > 0 ? '🔥 ' + streak : '0';
+  $('statAttempts').textContent = attempts;
+  $('statBest').textContent    = bestLen > 0 ? bestLen : '—';
+}
+
+/* ────────────────────────────────────────
+   Action buttons
+──────────────────────────────────────── */
+function resetPracticeAndStats() {
+  resetPractice();
+}
+
+function changePw() {
+  // Clear password and all state
+  password = '';
+  $('pwInput').value = '';
+  $('pwInput').type  = 'password';
+  $('eyeIcon').className = 'ti ti-eye';
+  $('mainInput').disabled = true;
+  streak = 0; attempts = 0; totalTyped = 0; totalCorrect = 0; bestLen = 0;
+  lastGoodLen = 0; locked = false;
+  renderHint();
+  resetPractice();
+  updateStats();
+  $('pwInput').focus();
+}
+
+/* Keyboard navigation for mode cards */
+document.querySelectorAll('.mode-card').forEach(card => {
+  card.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+  });
+});
+$('penaltyToggle').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePenalty(); }
+});
+
+/* ────────────────────────────────────────
+   Init
+──────────────────────────────────────── */
+applyStrings();
+renderHint();
+updateStats();
+$('progressNum').textContent = '0 / 0';
 </script>
+</body>
+</html>
