@@ -2,27 +2,32 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>密碼背誦小助手 / Password Memorizer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>
-/* ── Reset & Base ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; }
+/* ══════════════════════════════════════════
+   Reset & Base
+══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   min-height: 100vh;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 32px 16px 64px;
+  padding: clamp(12px, 4vw, 32px) clamp(8px, 3vw, 16px) clamp(32px, 8vw, 64px);
   transition: background 0.2s, color 0.2s;
+  line-height: 1.4;
 }
 
-/* ── Theme Variables ── */
+/* ══════════════════════════════════════════
+   Theme tokens
+══════════════════════════════════════════ */
 body {
   --bg:      #0a0a0a;
   --bg2:     #111111;
@@ -30,191 +35,207 @@ body {
   --bg4:     #242424;
   --text:    #f0f0f0;
   --text2:   #a0a0a0;
-  --text3:   #505050;
-  --border:  #222222;
-  --border2: #333333;
-  --border3: #444444;
-  --green:      #22c55e;
-  --green-bg:   #0a2018;
-  --green-border:#164d2e;
-  --red:        #ef4444;
-  --red-bg:     #200a0a;
-  --red-border: #4d1616;
-  --mono: 'JetBrains Mono', 'Courier New', monospace;
+  --text3:   #565656;
+  --border:  #202020;
+  --border2: #303030;
+  --border3: #424242;
+  --green:        #22c55e;
+  --green-bg:     #0b2117;
+  --green-border: #1c4d30;
+  --red:          #ef4444;
+  --red-bg:       #25100f;
+  --red-border:   #5a1d1a;
+  --mono: 'JetBrains Mono', 'SF Mono', 'Courier New', monospace;
   background: #050505;
   color: var(--text);
 }
 body.light {
   --bg:      #ffffff;
-  --bg2:     #f8f8f8;
-  --bg3:     #f0f0f0;
-  --bg4:     #e8e8e8;
+  --bg2:     #f7f7f7;
+  --bg3:     #efefef;
+  --bg4:     #e6e6e6;
   --text:    #0a0a0a;
-  --text2:   #505050;
-  --text3:   #a0a0a0;
-  --border:  #e0e0e0;
-  --border2: #cccccc;
-  --border3: #b0b0b0;
-  --green:      #16a34a;
-  --green-bg:   #f0fdf4;
-  --green-border:#bbf7d0;
-  --red:        #dc2626;
-  --red-bg:     #fef2f2;
-  --red-border: #fecaca;
-  background: #f4f4f4;
+  --text2:   #4d4d4d;
+  --text3:   #a3a3a3;
+  --border:  #e2e2e2;
+  --border2: #d0d0d0;
+  --border3: #b8b8b8;
+  --green:        #16a34a;
+  --green-bg:     #eefcf2;
+  --green-border: #bbe9cb;
+  --red:          #dc2626;
+  --red-bg:       #fdeeed;
+  --red-border:   #f3c6c3;
+  background: #efefef;
   color: var(--text);
 }
+* { transition: background-color 0.2s, border-color 0.2s, color 0.2s; }
+input, .progress-fill, .cdot { transition: background-color 0.12s, border-color 0.12s; }
 
-/* ── Layout ── */
+/* ══════════════════════════════════════════
+   App shell — fluid width across breakpoints
+══════════════════════════════════════════ */
 #app {
   width: 100%;
   max-width: 520px;
   background: var(--bg);
   border: 0.5px solid var(--border2);
-  border-radius: 16px;
+  border-radius: clamp(10px, 2vw, 16px);
   overflow: hidden;
 }
 
-/* ── Top Bar ── */
+/* ══════════════════════════════════════════
+   Top bar
+══════════════════════════════════════════ */
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
+  padding: clamp(10px, 2vw, 14px) clamp(14px, 3vw, 20px);
   border-bottom: 0.5px solid var(--border);
   background: var(--bg2);
+  gap: 8px;
 }
 .logo {
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: clamp(12px, 2.5vw, 13px);
   font-weight: 500;
   color: var(--text);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .logo .dim { color: var(--text3); }
-.topbar-right { display: flex; gap: 8px; align-items: center; }
+.topbar-right { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
 
-/* ── Pill Buttons ── */
 .pill-btn {
   background: transparent;
   border: 0.5px solid var(--border2);
   border-radius: 20px;
-  padding: 5px 12px;
+  padding: 5px 11px;
   font-size: 11px;
   font-weight: 500;
   color: var(--text2);
   cursor: pointer;
-  transition: all 0.15s;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   font-family: inherit;
-  line-height: 1;
+  line-height: 1.3;
+  min-height: 26px;
 }
 .pill-btn:hover { border-color: var(--border3); color: var(--text); }
-.pill-btn.active {
-  background: var(--text);
-  color: var(--bg);
-  border-color: var(--text);
-}
+.pill-btn:active { transform: scale(0.96); }
+.pill-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+.pill-btn:focus-visible { outline: 2px solid var(--text2); outline-offset: 2px; }
 
-/* ── Section ── */
+/* ══════════════════════════════════════════
+   Sections
+══════════════════════════════════════════ */
 .section {
-  padding: 20px;
+  padding: clamp(14px, 3vw, 20px);
   border-bottom: 0.5px solid var(--border);
 }
 .section:last-child { border-bottom: none; }
 .section-label {
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text3);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   margin-bottom: 12px;
 }
 
-/* ── Password Input ── */
-.pw-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
+/* ══════════════════════════════════════════
+   Password input row
+══════════════════════════════════════════ */
+.pw-row { display: flex; gap: 8px; align-items: stretch; }
+
 .pw-field {
   flex: 1;
+  min-width: 0;
   background: var(--bg3);
   border: 0.5px solid var(--border2);
   border-radius: 10px;
   padding: 11px 14px;
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: clamp(14px, 3vw, 15px);
   color: var(--text);
   outline: none;
-  letter-spacing: 0.12em;
-  transition: border-color 0.15s, background 0.15s;
+  letter-spacing: 0.1em;
   width: 100%;
 }
-.pw-field::placeholder { color: var(--text3); letter-spacing: 0.02em; font-size: 13px; }
+.pw-field::placeholder { color: var(--text3); letter-spacing: 0.01em; font-size: 13px; font-family: 'Inter', sans-serif; }
 .pw-field:focus { border-color: var(--border3); }
+.pw-field:focus-visible { outline: 2px solid var(--text2); outline-offset: 1px; }
 
 .icon-btn {
   background: var(--bg3);
   border: 0.5px solid var(--border2);
   border-radius: 10px;
-  width: 40px;
-  height: 40px;
+  width: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   color: var(--text3);
-  transition: all 0.15s;
   flex-shrink: 0;
   font-size: 17px;
 }
 .icon-btn:hover { border-color: var(--border3); color: var(--text2); }
+.icon-btn:active { transform: scale(0.95); }
+.icon-btn:focus-visible { outline: 2px solid var(--text2); outline-offset: 1px; }
 
-/* ── Mode Buttons ── */
+/* ══════════════════════════════════════════
+   Mode cards
+══════════════════════════════════════════ */
 .mode-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: clamp(6px, 1.5vw, 8px);
   margin-top: 12px;
 }
 .mode-card {
   background: var(--bg3);
   border: 0.5px solid var(--border);
   border-radius: 10px;
-  padding: 12px 10px;
+  padding: clamp(8px, 2vw, 12px) clamp(4px, 1.5vw, 10px);
   text-align: center;
   cursor: pointer;
-  transition: all 0.15s;
+  min-width: 0;
 }
 .mode-card:hover { border-color: var(--border2); }
+.mode-card:active { transform: scale(0.98); }
 .mode-card.active {
   background: var(--bg3);
   border-color: var(--text2);
   box-shadow: 0 0 0 1px var(--text2) inset;
 }
-.mode-icon {
-  font-size: 18px;
-  color: var(--text3);
-  margin-bottom: 6px;
-  display: block;
-}
+.mode-card:focus-visible { outline: 2px solid var(--text2); outline-offset: 2px; }
+.mode-icon { font-size: 18px; color: var(--text3); margin-bottom: 5px; display: block; }
 .mode-card.active .mode-icon { color: var(--text2); }
 .mode-name {
-  font-size: 12px;
+  font-size: clamp(11px, 2.5vw, 12px);
   font-weight: 500;
   color: var(--text2);
   display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .mode-card.active .mode-name { color: var(--text); }
 .mode-sub {
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--text3);
   display: block;
   margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* ── Penalty Toggle ── */
+/* ══════════════════════════════════════════
+   Penalty toggle
+══════════════════════════════════════════ */
 .opt-row {
   display: flex;
   align-items: center;
@@ -231,36 +252,32 @@ body.light {
   border-radius: 10px;
   cursor: pointer;
   position: relative;
-  transition: background 0.2s, border-color 0.2s;
   flex-shrink: 0;
 }
-.toggle-wrap.on {
-  background: var(--text);
-  border-color: var(--text);
-}
+.toggle-wrap.on { background: var(--text); border-color: var(--text); }
 .toggle-knob {
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 12px;
-  height: 12px;
+  top: 2.5px;
+  left: 2.5px;
+  width: 13px;
+  height: 13px;
   background: var(--text3);
   border-radius: 50%;
-  transition: left 0.2s, background 0.2s;
+  transition: left 0.18s, background 0.18s;
 }
-.toggle-wrap.on .toggle-knob {
-  left: 19px;
-  background: var(--bg);
-}
-.opt-label { font-size: 12px; color: var(--text3); }
+.toggle-wrap.on .toggle-knob { left: 19.5px; background: var(--bg); }
+.toggle-wrap:focus-visible { outline: 2px solid var(--text2); outline-offset: 2px; }
+.opt-label { font-size: clamp(11px, 2.5vw, 12px); color: var(--text3); }
 
-/* ── Hint Area ── */
+/* ══════════════════════════════════════════
+   Hint box
+══════════════════════════════════════════ */
 .hint-box {
   background: var(--bg2);
   border: 0.5px solid var(--border);
   border-radius: 10px;
-  padding: 20px 16px;
-  min-height: 64px;
+  padding: clamp(14px, 4vw, 20px) clamp(10px, 3vw, 16px);
+  min-height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -268,9 +285,9 @@ body.light {
 }
 .hint-chars {
   font-family: var(--mono);
-  font-size: 20px;
+  font-size: clamp(15px, 4.2vw, 20px);
   font-weight: 500;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   line-height: 1.7;
   text-align: center;
   word-break: break-all;
@@ -278,81 +295,59 @@ body.light {
 }
 .hint-chars .ch-show { color: var(--text); }
 .hint-chars .ch-hide { color: var(--text3); }
-.hint-empty { font-size: 12px; color: var(--text3); font-family: inherit; letter-spacing: 0.01em; }
+.hint-empty { font-size: 12px; color: var(--text3); font-family: 'Inter', sans-serif; letter-spacing: 0.01em; }
 
-/* ── Progress ── */
-.progress-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-.progress-track {
-  flex: 1;
-  height: 2px;
-  background: var(--bg4);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: var(--text2);
-  border-radius: 2px;
-  transition: width 0.25s ease, background 0.2s;
-  width: 0%;
-}
+/* ══════════════════════════════════════════
+   Progress
+══════════════════════════════════════════ */
+.progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.progress-track { flex: 1; height: 2px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--text2); border-radius: 2px; width: 0%; transition: width 0.18s ease, background-color 0.15s; }
 .progress-fill.done { background: var(--green); }
-.progress-num {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--text3);
-  min-width: 48px;
-  text-align: right;
-}
+.progress-num { font-family: var(--mono); font-size: 11px; color: var(--text3); min-width: 48px; text-align: right; flex-shrink: 0; }
 
-/* ── Main Input ── */
+/* ══════════════════════════════════════════
+   Main practice input
+   NOTE: visual state classes never block or delay
+   native input behaviour — they are purely cosmetic.
+══════════════════════════════════════════ */
 .main-input {
   width: 100%;
   background: var(--bg3);
   border: 1.5px solid var(--border2);
   border-radius: 10px;
-  padding: 14px 16px;
+  padding: clamp(12px, 3vw, 14px) clamp(12px, 3vw, 16px);
   font-family: var(--mono);
-  font-size: 18px;
+  font-size: clamp(16px, 4vw, 18px);
   font-weight: 500;
   color: var(--text);
   outline: none;
-  letter-spacing: 0.16em;
-  transition: border-color 0.15s, background 0.15s;
+  letter-spacing: 0.14em;
   caret-color: var(--text2);
 }
-.main-input::placeholder { color: var(--text3); font-size: 13px; letter-spacing: 0.02em; font-weight: 400; }
+.main-input::placeholder { color: var(--text3); font-size: 13px; letter-spacing: 0.01em; font-weight: 400; font-family: 'Inter', sans-serif; }
 .main-input:focus { border-color: var(--border3); }
-.main-input.state-ok {
-  border-color: var(--green);
-  background: var(--green-bg);
-}
-.main-input.state-err {
-  border-color: var(--red);
-  background: var(--red-bg);
-  animation: shake 0.32s ease;
-}
-.main-input.state-done {
-  border-color: var(--green);
-  background: var(--green-bg);
-}
+.main-input:focus-visible { outline: none; }
+.main-input.state-ok   { border-color: var(--green); background: var(--green-bg); }
+.main-input.state-err  { border-color: var(--red);   background: var(--red-bg); animation: shake 0.28s ease; }
+.main-input.state-done { border-color: var(--green); background: var(--green-bg); }
 .main-input:disabled { opacity: 0.4; cursor: not-allowed; }
 
 @keyframes shake {
   0%,100% { transform: translateX(0); }
-  18%      { transform: translateX(-7px); }
-  36%      { transform: translateX(7px); }
-  54%      { transform: translateX(-5px); }
-  72%      { transform: translateX(5px); }
-  90%      { transform: translateX(-2px); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .main-input.state-err { animation: none; }
+  * { transition-duration: 0.01ms !important; }
 }
 
-/* ── Char Dots ── */
+/* ══════════════════════════════════════════
+   Char dots — wrap freely, never overflow
+══════════════════════════════════════════ */
 .dot-row {
   display: flex;
   flex-wrap: wrap;
@@ -366,142 +361,124 @@ body.light {
   border-radius: 50%;
   background: var(--bg4);
   border: 0.5px solid var(--border2);
-  transition: background 0.12s, border-color 0.12s;
   flex-shrink: 0;
 }
 .cdot.ok   { background: var(--green); border-color: var(--green); }
 .cdot.fail { background: var(--red);   border-color: var(--red); }
-.cdot.cur  {
-  background: var(--bg4);
-  border-color: var(--text3);
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--text3);
-}
+.cdot.cur  { background: var(--bg4); border-color: var(--text3); box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--text3); }
 
-/* ── Feedback Messages ── */
-.msg-row {
-  min-height: 20px;
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.msg-err {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--red);
-}
-.msg-ok {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--green);
-}
+/* ══════════════════════════════════════════
+   Inline messages
+══════════════════════════════════════════ */
+.msg-row { min-height: 18px; margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+.msg-err { font-family: var(--mono); font-size: 11px; color: var(--red); }
+.msg-ok  { font-family: var(--mono); font-size: 11px; color: var(--green); }
 
-/* ── Success Banner ── */
+/* ══════════════════════════════════════════
+   Success banner
+══════════════════════════════════════════ */
 .success-banner {
   display: none;
   margin-top: 10px;
   background: var(--green-bg);
   border: 0.5px solid var(--green-border);
   border-radius: 10px;
-  padding: 14px 16px;
+  padding: 13px 16px;
   text-align: center;
 }
 .success-banner.show { display: block; }
-.success-banner p {
-  font-family: var(--mono);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--green);
-}
-.success-banner small {
-  display: block;
-  font-size: 11px;
-  color: var(--green);
-  opacity: 0.65;
-  margin-top: 4px;
-}
+.success-banner p { font-family: var(--mono); font-size: 14px; font-weight: 500; color: var(--green); }
+.success-banner small { display: block; font-size: 11px; color: var(--green); opacity: 0.7; margin-top: 4px; font-family: 'Inter', sans-serif; }
 
-/* ── Stats Grid ── */
+/* ══════════════════════════════════════════
+   Stats grid — responsive 4→2 columns
+══════════════════════════════════════════ */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: clamp(6px, 2vw, 8px);
   margin-bottom: 14px;
 }
-.stat-card {
-  background: var(--bg3);
-  border-radius: 8px;
-  padding: 12px 8px;
-  text-align: center;
-}
-.stat-val {
-  font-family: var(--mono);
-  font-size: 20px;
-  font-weight: 500;
-  color: var(--text);
-  line-height: 1;
-  display: block;
-}
-.stat-lbl {
-  font-size: 10px;
-  color: var(--text3);
-  margin-top: 5px;
-  display: block;
-  letter-spacing: 0.04em;
-}
+.stat-card { background: var(--bg3); border-radius: 8px; padding: clamp(8px, 2.5vw, 12px) 6px; text-align: center; min-width: 0; }
+.stat-val { font-family: var(--mono); font-size: clamp(15px, 4vw, 20px); font-weight: 600; color: var(--text); line-height: 1; display: block; }
+.stat-lbl { font-size: 9.5px; color: var(--text3); margin-top: 5px; display: block; letter-spacing: 0.03em; white-space: nowrap; }
 
-/* ── Action Buttons ── */
-.action-row {
-  display: flex;
-  gap: 8px;
-}
+/* ══════════════════════════════════════════
+   Action buttons — wrap on narrow screens
+══════════════════════════════════════════ */
+.action-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .act-btn {
-  flex: 1;
+  flex: 1 1 calc(33.333% - 6px);
+  min-width: 92px;
   background: transparent;
   border: 0.5px solid var(--border2);
   border-radius: 8px;
-  padding: 10px 8px;
-  font-size: 12px;
+  padding: 10px 6px;
+  font-size: clamp(11px, 2.8vw, 12px);
   font-weight: 500;
   color: var(--text2);
   cursor: pointer;
-  transition: all 0.15s;
   font-family: inherit;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   white-space: nowrap;
 }
 .act-btn:hover { border-color: var(--border3); color: var(--text); }
-.act-btn.primary {
-  background: var(--text);
-  color: var(--bg);
-  border-color: var(--text);
-}
+.act-btn:active { transform: scale(0.98); }
+.act-btn:focus-visible { outline: 2px solid var(--text2); outline-offset: 2px; }
+.act-btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
 .act-btn.primary:hover { opacity: 0.85; }
 .act-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 .act-btn:disabled:hover { border-color: var(--border2); color: var(--text2); opacity: 0.3; }
 
-/* ── Footer ── */
+/* ══════════════════════════════════════════
+   Footer
+══════════════════════════════════════════ */
 .footer-note {
   text-align: center;
-  padding: 10px 20px 4px;
+  padding: 10px clamp(14px, 3vw, 20px) 4px;
   font-size: 10px;
   color: var(--text3);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   border-top: 0.5px solid var(--border);
+  line-height: 1.5;
 }
 
-/* ── Scrollbar ── */
+/* ══════════════════════════════════════════
+   Scrollbar
+══════════════════════════════════════════ */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
-/* ── Responsive ── */
+/* ══════════════════════════════════════════
+   Breakpoints — real testing across device classes
+   ≤360px (small phones), ≤480px (phones), 481-768 (tablets), >768 (desktop, default above)
+══════════════════════════════════════════ */
 @media (max-width: 480px) {
-  body { padding: 16px 10px 48px; }
+  body { padding: 10px 6px 40px; align-items: flex-start; }
+  #app { border-radius: 12px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .action-row { flex-wrap: wrap; }
-  .act-btn { flex: 1 1 40%; }
-  .hint-chars { font-size: 16px; letter-spacing: 0.15em; }
+  .act-btn { flex: 1 1 calc(50% - 4px); }
+}
+@media (max-width: 360px) {
+  .logo { font-size: 11px; }
+  .pill-btn { padding: 5px 9px; font-size: 10.5px; }
+  .mode-sub { display: none; }
+  .mode-card { padding: 10px 4px; }
+  .hint-chars { letter-spacing: 0.12em; }
+}
+@media (min-width: 481px) and (max-width: 768px) {
+  #app { max-width: 560px; }
+}
+@media (min-width: 769px) {
+  #app { max-width: 540px; }
+  body { padding-top: 48px; }
+}
+@media (hover: none) and (pointer: coarse) {
+  /* touch devices: bigger tap targets */
+  .icon-btn { width: 46px; }
+  .pill-btn { padding: 7px 13px; min-height: 32px; }
+  .mode-card { padding: 14px 8px; }
 }
 </style>
 </head>
@@ -513,8 +490,8 @@ body.light {
   <div class="topbar">
     <div class="logo"><span class="dim">// </span>密碼背誦<span class="dim"> _</span></div>
     <div class="topbar-right">
-      <button class="pill-btn" id="langBtn" onclick="toggleLang()">EN</button>
-      <button class="pill-btn" id="themeBtn" onclick="toggleTheme()">☀</button>
+      <button class="pill-btn" id="langBtn" onclick="toggleLang()" type="button">EN</button>
+      <button class="pill-btn" id="themeBtn" onclick="toggleTheme()" type="button">☀</button>
     </div>
   </div>
 
@@ -525,9 +502,9 @@ body.light {
     <div class="pw-row">
       <input class="pw-field" type="password" id="pwInput"
         placeholder="輸入欲背誦的密碼..."
-        autocomplete="off" autocorrect="off" spellcheck="false"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
         oninput="onPwChange()">
-      <button class="icon-btn" id="eyeBtn" onclick="toggleEye()" title="顯示/隱藏密碼" aria-label="顯示/隱藏密碼">
+      <button class="icon-btn" id="eyeBtn" onclick="toggleEye()" type="button" title="顯示/隱藏密碼" aria-label="顯示密碼">
         <i class="ti ti-eye" id="eyeIcon" aria-hidden="true"></i>
       </button>
     </div>
@@ -554,7 +531,7 @@ body.light {
       <div class="toggle-wrap on" id="penaltyToggle" onclick="togglePenalty()" role="switch" tabindex="0" aria-checked="true">
         <div class="toggle-knob"></div>
       </div>
-      <span class="opt-label" id="penaltyLabel">卡住模式：打錯暫停並清除</span>
+      <span class="opt-label" id="penaltyLabel">卡住模式：打錯立即清除</span>
     </div>
   </div>
 
@@ -581,7 +558,7 @@ body.light {
 
     <input class="main-input" type="password" id="mainInput"
       placeholder="在此輸入密碼..."
-      autocomplete="new-password" autocorrect="off" spellcheck="false"
+      autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false"
       oninput="onPracticeInput()" onpaste="return false"
       aria-label="練習輸入區" disabled>
 
@@ -622,9 +599,9 @@ body.light {
     </div>
 
     <div class="action-row">
-      <button class="act-btn" id="resetBtn"   onclick="resetPractice()">重新開始</button>
-      <button class="act-btn" id="changePwBtn" onclick="changePw()">換密碼</button>
-      <button class="act-btn primary" id="nextModeBtn" onclick="nextMode()" disabled>下一模式</button>
+      <button class="act-btn" id="resetBtn"    onclick="resetPractice()" type="button">重新開始</button>
+      <button class="act-btn" id="changePwBtn" onclick="changePw()" type="button">換密碼</button>
+      <button class="act-btn primary" id="nextModeBtn" onclick="nextMode()" type="button" disabled>下一模式</button>
     </div>
   </div>
 
@@ -632,9 +609,11 @@ body.light {
 </div>
 
 <script>
-/* ────────────────────────────────────────
+'use strict';
+
+/* ══════════════════════════════════════════
    i18n strings
-──────────────────────────────────────── */
+══════════════════════════════════════════ */
 const STRINGS = {
   zh: {
     lblSetup: '設定', lblHint: '提示', lblPractice: '練習', lblStats: '統計',
@@ -644,12 +623,12 @@ const STRINGS = {
     pwPh: '輸入欲背誦的密碼...',
     pracPh: '在此輸入密碼...',
     hintEmpty: '請先輸入密碼',
-    penaltyLabel: '卡住模式：打錯暫停並清除',
+    penaltyLabel: '卡住模式：打錯立即清除',
     slAcc: '正確率', slStreak: '連勝', slAttempts: '嘗試', slBest: '最佳長度',
     resetBtn: '重新開始', changePwBtn: '換密碼', nextModeBtn: '下一模式',
     successMsg: '✓ 完全正確！',
     successSub: '繼續挑戰下一模式',
-    msgErr: '✗ 錯誤，請重試',
+    msgErr: '✗ 錯誤，已重置',
     langBtn: 'EN', themeBtn: { dark: '☀', light: '☾' },
     footerNote: '所有資料僅存在於記憶體，重新整理即清除 · No data leaves your browser',
     eyeShow: '顯示密碼', eyeHide: '隱藏密碼',
@@ -662,53 +641,48 @@ const STRINGS = {
     pwPh: 'Enter the password to memorize...',
     pracPh: 'Type the password here...',
     hintEmpty: 'Enter a password above',
-    penaltyLabel: 'Lock mode: freeze & clear on error',
+    penaltyLabel: 'Lock mode: clear instantly on error',
     slAcc: 'Accuracy', slStreak: 'Streak', slAttempts: 'Attempts', slBest: 'Best len',
     resetBtn: 'Restart', changePwBtn: 'New PW', nextModeBtn: 'Next mode',
     successMsg: '✓ Correct!',
     successSub: 'Try the next mode',
-    msgErr: '✗ Wrong — try again',
+    msgErr: '✗ Wrong — reset',
     langBtn: '中', themeBtn: { dark: '☀', light: '☾' },
     footerNote: 'All data stays in memory only · Refresh to clear · No data leaves your browser',
     eyeShow: 'Show password', eyeHide: 'Hide password',
   },
 };
 
-/* ────────────────────────────────────────
+/* ══════════════════════════════════════════
    State
-──────────────────────────────────────── */
-let lang       = 'zh';
-let theme      = 'dark';
-let mode       = 'full';          // 'full' | 'first' | 'blind'
-let penaltyOn  = true;
+══════════════════════════════════════════ */
+let lang      = 'zh';
+let theme     = 'dark';
+let mode      = 'full';
+let penaltyOn = true;
 
-let password       = '';
-let locked         = false;       // temporarily locked after wrong char (penalty)
-let lastGoodLen    = 0;           // how many chars are confirmed correct
+let password  = '';
 
-let streak         = 0;
+let streak        = 0;
 let attempts       = 0;
 let totalTyped     = 0;
 let totalCorrect   = 0;
 let bestLen        = 0;
 
-/* ────────────────────────────────────────
-   DOM helpers
-──────────────────────────────────────── */
 const $ = id => document.getElementById(id);
 
-/* ────────────────────────────────────────
+/* ══════════════════════════════════════════
    Theme
-──────────────────────────────────────── */
+══════════════════════════════════════════ */
 function toggleTheme() {
   theme = theme === 'dark' ? 'light' : 'dark';
-  document.body.className = theme === 'light' ? 'light' : '';
+  document.body.classList.toggle('light', theme === 'light');
   $('themeBtn').textContent = STRINGS[lang].themeBtn[theme];
 }
 
-/* ────────────────────────────────────────
+/* ══════════════════════════════════════════
    Language
-──────────────────────────────────────── */
+══════════════════════════════════════════ */
 function toggleLang() {
   lang = lang === 'zh' ? 'en' : 'zh';
   applyStrings();
@@ -743,14 +717,13 @@ function applyStrings() {
   }
   const he = $('hintEmpty');
   if (he) he.textContent = s.hintEmpty;
-  // update eye button aria-label
   const eyeIsShowing = $('pwInput').type === 'text';
   $('eyeBtn').setAttribute('aria-label', eyeIsShowing ? s.eyeHide : s.eyeShow);
 }
 
-/* ────────────────────────────────────────
-   Eye toggle (show/hide password field)
-──────────────────────────────────────── */
+/* ══════════════════════════════════════════
+   Eye toggle
+══════════════════════════════════════════ */
 function toggleEye() {
   const inp = $('pwInput');
   const showing = inp.type === 'text';
@@ -759,9 +732,9 @@ function toggleEye() {
   $('eyeBtn').setAttribute('aria-label', STRINGS[lang][showing ? 'eyeShow' : 'eyeHide']);
 }
 
-/* ────────────────────────────────────────
+/* ══════════════════════════════════════════
    Mode selection
-──────────────────────────────────────── */
+══════════════════════════════════════════ */
 function setMode(m) {
   mode = m;
   ['full', 'first', 'blind'].forEach(x =>
@@ -777,9 +750,9 @@ function nextMode() {
   setMode(next);
 }
 
-/* ────────────────────────────────────────
+/* ══════════════════════════════════════════
    Penalty toggle
-──────────────────────────────────────── */
+══════════════════════════════════════════ */
 function togglePenalty() {
   penaltyOn = !penaltyOn;
   const t = $('penaltyToggle');
@@ -787,9 +760,9 @@ function togglePenalty() {
   t.setAttribute('aria-checked', String(penaltyOn));
 }
 
-/* ────────────────────────────────────────
-   Password input → update hint + reset
-──────────────────────────────────────── */
+/* ══════════════════════════════════════════
+   Password setup input
+══════════════════════════════════════════ */
 function onPwChange() {
   password = $('pwInput').value;
   renderHint();
@@ -797,9 +770,9 @@ function onPwChange() {
   $('mainInput').disabled = (password.length === 0);
 }
 
-/* ────────────────────────────────────────
+/* ══════════════════════════════════════════
    Hint rendering
-──────────────────────────────────────── */
+══════════════════════════════════════════ */
 function renderHint() {
   const container = $('hintChars');
   if (!password) {
@@ -809,10 +782,10 @@ function renderHint() {
   let html = '';
   for (let i = 0; i < password.length; i++) {
     const ch  = escHtml(password[i]);
-    const cls = (mode === 'full' || (mode === 'first' && i === 0))
-      ? 'ch-show' : 'ch-hide';
-    const display = cls === 'ch-hide' ? '*' : ch;
-    html += `<span class="${cls}">${display}</span>`;
+    const show = (mode === 'full') || (mode === 'first' && i === 0);
+    html += show
+      ? `<span class="ch-show">${ch}</span>`
+      : `<span class="ch-hide">*</span>`;
   }
   container.innerHTML = html;
 }
@@ -821,9 +794,9 @@ function escHtml(c) {
   return c.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-/* ────────────────────────────────────────
+/* ══════════════════════════════════════════
    Dot row
-──────────────────────────────────────── */
+══════════════════════════════════════════ */
 function buildDots() {
   let html = '';
   for (let i = 0; i < password.length; i++) {
@@ -832,21 +805,23 @@ function buildDots() {
   $('dotRow').innerHTML = html;
 }
 
-function markDot(i, state) {
-  const d = $('dot-' + i);
-  if (!d) return;
-  d.className = 'cdot' + (state ? ' ' + state : '');
+function paintDots(correctLen, totalTypedLen) {
+  for (let i = 0; i < password.length; i++) {
+    const d = $('dot-' + i);
+    if (!d) continue;
+    if (i < correctLen)            d.className = 'cdot ok';
+    else if (i < totalTypedLen)    d.className = 'cdot fail';
+    else if (i === correctLen)     d.className = 'cdot cur';
+    else                            d.className = 'cdot';
+  }
 }
 
-function clearDots() {
-  for (let i = 0; i < password.length; i++) markDot(i, '');
-}
-
-/* ────────────────────────────────────────
-   Reset practice session
-──────────────────────────────────────── */
+/* ══════════════════════════════════════════
+   Reset practice session (does NOT touch stats)
+══════════════════════════════════════════ */
 function resetPractice() {
-  $('mainInput').value = '';
+  const input = $('mainInput');
+  input.value = '';
   setInputState('');
   $('successBanner').classList.remove('show');
   $('msgErr').textContent = '';
@@ -855,117 +830,96 @@ function resetPractice() {
   $('progressFill').classList.remove('done');
   $('progressNum').textContent  = '0 / ' + (password.length || 0);
   $('nextModeBtn').disabled = true;
-  lastGoodLen = 0;
-  locked      = false;
   buildDots();
-  if (password) $('mainInput').focus();
+  if (password.length > 0) paintDots(0, 0);
+  if (password) input.focus();
 }
 
 function setInputState(s) {
   $('mainInput').className = 'main-input' + (s ? ' state-' + s : '');
 }
 
-/* ────────────────────────────────────────
+/* ══════════════════════════════════════════
    Core practice input handler
-──────────────────────────────────────── */
+   — fully synchronous, no setTimeout, no value
+     mutation mid-keystroke. The input element's
+     native value is the single source of truth;
+     we only ever READ it and react, never rewrite
+     it while the user might still be typing.
+══════════════════════════════════════════ */
 function onPracticeInput() {
   if (!password) return;
 
-  // If locked (penalty cooldown), revert to last good position
-  if (locked) {
-    $('mainInput').value = password.slice(0, lastGoodLen);
-    return;
-  }
+  const input = $('mainInput');
+  const val   = input.value;
+  const len   = val.length;
 
-  const val = $('mainInput').value;
-  const len = val.length;
-
-  // Find how many leading chars are correct
+  // How many leading characters match the password exactly.
   let correctLen = 0;
-  for (let i = 0; i < len && i < password.length; i++) {
-    if (val[i] === password[i]) correctLen++;
-    else break;
+  while (correctLen < len && correctLen < password.length && val[correctLen] === password[correctLen]) {
+    correctLen++;
   }
 
-  const hasError = (len > 0) && (correctLen < len || (len > password.length));
+  const isWrong = (correctLen < len); // a mismatched or extra character exists
 
-  // Update dots
-  clearDots();
-  for (let i = 0; i < len && i < password.length; i++) {
-    if (i < correctLen) markDot(i, 'ok');
-    else                 markDot(i, 'fail');
-  }
-  if (len < password.length && !hasError) markDot(len, 'cur');
+  paintDots(correctLen, len);
 
-  // Update progress bar
   const pct = password.length > 0 ? Math.round((correctLen / password.length) * 100) : 0;
   $('progressFill').style.width = pct + '%';
   $('progressNum').textContent  = correctLen + ' / ' + password.length;
 
-  if (hasError) {
-    /* ── Error state ── */
+  if (isWrong) {
     setInputState('err');
     $('msgErr').textContent = STRINGS[lang].msgErr;
     $('msgOk').textContent  = '';
 
-    totalTyped   += (len - lastGoodLen);
-    // correct chars typed in this burst = correctLen - lastGoodLen (clamped)
-    totalCorrect += Math.max(0, correctLen - lastGoodLen);
+    totalTyped++;
+    // no totalCorrect increment — this keystroke was wrong
 
     if (penaltyOn) {
-      locked = true;
-      setTimeout(() => {
-        $('mainInput').value = password.slice(0, lastGoodLen);
-        locked = false;
-        setInputState(lastGoodLen > 0 ? 'ok' : '');
-        $('msgErr').textContent = '';
-        clearDots();
-        for (let i = 0; i < lastGoodLen; i++) markDot(i, 'ok');
-        if (lastGoodLen < password.length) markDot(lastGoodLen, 'cur');
-        $('progressFill').style.width = Math.round((lastGoodLen / password.length) * 100) + '%';
-        $('progressNum').textContent  = lastGoodLen + ' / ' + password.length;
-      }, 500);
+      // Reset immediately and synchronously — no delay, no race condition.
+      input.value = '';
+      setInputState('');
+      paintDots(0, 0);
+      $('progressFill').style.width = '0%';
+      $('progressNum').textContent = '0 / ' + password.length;
     }
-
     updateStats();
     return;
   }
 
-  /* ── No error ── */
+  // Correct so far
   $('msgErr').textContent = '';
-  lastGoodLen = correctLen;
+  if (len > 0) {
+    totalTyped++;
+    totalCorrect++;
+  }
 
   if (len === 0) {
     setInputState('');
-    $('msgOk').textContent = '';
   } else if (len === password.length && correctLen === password.length) {
-    /* ── Complete! ── */
     onComplete();
+    return;
   } else {
     setInputState('ok');
-    $('msgOk').textContent = '';
   }
 
   updateStats();
 }
 
-/* ────────────────────────────────────────
+/* ══════════════════════════════════════════
    Completion
-──────────────────────────────────────── */
+══════════════════════════════════════════ */
 function onComplete() {
   attempts++;
   streak++;
   if (password.length > bestLen) bestLen = password.length;
-  totalTyped   += password.length - lastGoodLen;
-  totalCorrect += password.length - lastGoodLen;
-  lastGoodLen   = password.length;
 
   setInputState('done');
   $('progressFill').style.width = '100%';
   $('progressFill').classList.add('done');
   $('progressNum').textContent  = password.length + ' / ' + password.length;
-
-  for (let i = 0; i < password.length; i++) markDot(i, 'ok');
+  paintDots(password.length, password.length);
 
   $('successMsg').textContent = STRINGS[lang].successMsg;
   $('successSub').textContent = STRINGS[lang].successSub;
@@ -977,40 +931,36 @@ function onComplete() {
   updateStats();
 }
 
-/* ────────────────────────────────────────
+/* ══════════════════════════════════════════
    Stats
-──────────────────────────────────────── */
+══════════════════════════════════════════ */
 function updateStats() {
   const acc = totalTyped > 0 ? Math.round((totalCorrect / totalTyped) * 100) : null;
-  $('statAcc').textContent     = acc !== null ? acc + '%' : '—';
-  $('statStreak').textContent  = streak > 0 ? '🔥 ' + streak : '0';
+  $('statAcc').textContent      = acc !== null ? acc + '%' : '—';
+  $('statStreak').textContent   = streak > 0 ? '🔥 ' + streak : '0';
   $('statAttempts').textContent = attempts;
-  $('statBest').textContent    = bestLen > 0 ? bestLen : '—';
+  $('statBest').textContent     = bestLen > 0 ? bestLen : '—';
 }
 
-/* ────────────────────────────────────────
-   Action buttons
-──────────────────────────────────────── */
-function resetPracticeAndStats() {
-  resetPractice();
-}
-
+/* ══════════════════════════════════════════
+   Change password — full state reset
+══════════════════════════════════════════ */
 function changePw() {
-  // Clear password and all state
   password = '';
   $('pwInput').value = '';
   $('pwInput').type  = 'password';
   $('eyeIcon').className = 'ti ti-eye';
   $('mainInput').disabled = true;
   streak = 0; attempts = 0; totalTyped = 0; totalCorrect = 0; bestLen = 0;
-  lastGoodLen = 0; locked = false;
   renderHint();
   resetPractice();
   updateStats();
   $('pwInput').focus();
 }
 
-/* Keyboard navigation for mode cards */
+/* ══════════════════════════════════════════
+   Keyboard accessibility for custom controls
+══════════════════════════════════════════ */
 document.querySelectorAll('.mode-card').forEach(card => {
   card.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
@@ -1020,9 +970,9 @@ $('penaltyToggle').addEventListener('keydown', e => {
   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePenalty(); }
 });
 
-/* ────────────────────────────────────────
+/* ══════════════════════════════════════════
    Init
-──────────────────────────────────────── */
+══════════════════════════════════════════ */
 applyStrings();
 renderHint();
 updateStats();
